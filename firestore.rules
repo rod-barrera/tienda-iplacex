@@ -1,0 +1,106 @@
+// Reglas de Cloud Firestore - Tienda Iplacex
+// Ejercicio 2, puntos 3 y 4 del examen.
+//
+// Este archivo se versiona junto al codigo para que la configuracion quede
+// revisable. NO se aplica solo: hay que publicarlo manualmente en
+// Firebase Console > Firestore Database > Reglas.
+//
+// Resumen:
+//   - La aplicacion solo CREA documentos en la coleccion "pedidos".
+//   - Nunca lee, actualiza ni borra desde el cliente, asi que esas tres
+//     operaciones quedan denegadas.
+//   - Un pedido anonimo no puede traer datos de sesion ni de comprobante.
+//   - Un pedido autenticado debe declarar su propio uid, y si adjunta
+//     comprobante, la ruta tiene que estar dentro de su carpeta.
+//
+// Los tipos MIME aceptados aqui deben coincidir con storage.rules y con
+// TIPOS_PERMITIDOS en src/components/FormularioPedido.jsx.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function datos() {
+      return request.resource.data;
+    }
+
+    function camposObligatorios() {
+      return ['nombre', 'email', 'telefono', 'direccion',
+              'productos', 'total', 'fecha'];
+    }
+
+    function camposPermitidos() {
+      return ['nombre', 'email', 'telefono', 'direccion',
+              'productos', 'total', 'fecha',
+              'uid', 'correoUsuario',
+              'comprobantePath', 'comprobanteNombre', 'comprobanteTipo'];
+    }
+
+    // Campos y tipos comunes a cualquier pedido.
+    //
+    // "total" no se contrasta con la suma de "productos": las reglas de
+    // Firestore no pueden recorrer un arreglo para sumarlo.
+    function baseValida() {
+      return datos().keys().hasAll(camposObligatorios())
+          && datos().keys().hasOnly(camposPermitidos())
+          && datos().nombre is string
+          && datos().email is string
+          && datos().telefono is string
+          && datos().direccion is string
+          && datos().productos is list
+          && datos().productos.size() > 0
+          && datos().total is int
+          && datos().total >= 0
+          && datos().fecha == request.time;
+    }
+
+    function tieneAlgunCampoDeComprobante() {
+      return datos().keys().hasAny(['comprobantePath',
+                                    'comprobanteNombre',
+                                    'comprobanteTipo']);
+    }
+
+    // Los tres campos del comprobante van juntos o no van, y la ruta debe
+    // apuntar a la carpeta del propio usuario.
+    function comprobanteValido() {
+      return datos().keys().hasAll(['comprobantePath',
+                                    'comprobanteNombre',
+                                    'comprobanteTipo'])
+          && datos().comprobanteNombre is string
+          && datos().comprobanteTipo in ['image/jpeg', 'image/png',
+                                         'image/webp', 'application/pdf']
+          && datos().comprobantePath is string
+          && datos().comprobantePath.matches(
+               '^comprobantes/' + request.auth.uid + '/[A-Za-z0-9._-]+$');
+    }
+
+    // Sin sesion: nada de uid, correo ni comprobante.
+    function pedidoAnonimo() {
+      return request.auth == null
+          && !datos().keys().hasAny(['uid', 'correoUsuario'])
+          && !tieneAlgunCampoDeComprobante();
+    }
+
+    // Con sesion: uid y correo son obligatorios y deben ser los del token.
+    // El hasAll() se declara antes de leer los campos para que la regla
+    // exprese la obligatoriedad, en lugar de depender de que acceder a un
+    // campo inexistente provoque un error de evaluacion.
+    function pedidoAutenticado() {
+      return request.auth != null
+          && datos().keys().hasAll(['uid', 'correoUsuario'])
+          && datos().uid == request.auth.uid
+          && datos().correoUsuario == request.auth.token.email
+          && (!tieneAlgunCampoDeComprobante() || comprobanteValido());
+    }
+
+    match /pedidos/{pedidoId} {
+
+      allow create: if baseValida()
+                    && (pedidoAnonimo() || pedidoAutenticado());
+
+      // La aplicacion no lee, no edita ni borra pedidos desde el cliente.
+      allow read, update, delete: if false;
+    }
+  }
+}

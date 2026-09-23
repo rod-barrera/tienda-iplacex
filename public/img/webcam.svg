@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-label="Webcam">
+  <rect width="400" height="300" fill="#20c997"/>
+  <rect x="120" y="95" width="160" height="110" rx="10" fill="#ffffff" opacity="0.85"/>
+  <text x="200" y="158" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#20c997" text-anchor="middle">Webcam</text>
+  <text x="200" y="255" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle" opacity="0.9">Tienda Iplacex</text>
+</svg>

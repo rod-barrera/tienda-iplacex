@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="cl.iplacex.tiendaiplacex" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Tienda Iplacex</name>
+    <description>
+        Empaquetado Android de la tienda desarrollada para el examen de Programacion de Componentes (Iplacex): catalogo de productos, carrito, formulario validado sobre Cloud Firestore, autenticacion con correo y contrasena, y subida de comprobantes a Firebase Storage.
+    </description>
+    <author>
+        Rodrigo Barrera
+    </author>
+    <content src="index.html" />
+
+    <!-- cordova-android sirve www desde https://localhost mediante
+         WebViewAssetLoader. Se declara de forma explicita en lugar de
+         depender de los valores por defecto de la plataforma. -->
+    <preference name="scheme" value="https" />
+    <preference name="hostname" value="localhost" />
+    <preference name="android-targetSdkVersion" value="36" />
+
+    <!-- Unica navegacion permitida dentro del WebView: la propia aplicacion. -->
+    <allow-navigation href="https://localhost/*" />
+
+    <!-- Origenes a los que la aplicacion puede hacer peticiones. Son los
+         cuatro servicios de Firebase que se observaron en produccion:
+         identitytoolkit, securetoken, firestore y firebasestorage.
+         No se usa origin="*". -->
+    <access origin="https://*.googleapis.com" />
+    <access origin="https://*.firebaseapp.com" />
+    <access origin="https://*.firebasestorage.app" />
+
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+</widget>

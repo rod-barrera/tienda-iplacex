@@ -1,0 +1,13 @@
+/* Estilos propios que complementan a Bootstrap.
+   El entregable pide incluir CSS junto con la estructura del proyecto. */
+
+body {
+  background-color: #f8f9fa;
+}
+
+/* Proporcion fija para que todas las tarjetas de una fila midan lo mismo.
+   Coincide con la de las imagenes (400x300), asi que no se recortan. */
+.card-producto img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}

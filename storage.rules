@@ -1,0 +1,36 @@
+// Reglas de Firebase Storage - Tienda Iplacex
+// Ejercicio 3, punto 2 del examen.
+//
+// Este archivo se versiona junto al codigo para que la configuracion del
+// bucket quede revisable. NO se aplica solo: hay que publicarlo manualmente
+// en Firebase Console > Storage > Rules.
+//
+// IMPORTANTE: el limite de 5 MB de aqui debe coincidir con la constante
+// MAX_BYTES de src/components/FormularioPedido.jsx.
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Cada usuario solo puede escribir dentro de la carpeta de su propio UID.
+    match /comprobantes/{uid}/{archivo} {
+
+      // La aplicacion no implementa descarga ni lectura de comprobantes,
+      // asi que no se autoriza la lectura desde el cliente.
+      allow read: if false;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.size > 0
+                    && request.resource.size <= 5 * 1024 * 1024
+                    && (
+                         request.resource.contentType.matches('image/(jpeg|png|webp)')
+                         || request.resource.contentType == 'application/pdf'
+                       );
+
+      // Un comprobante no se reemplaza ni se borra desde el cliente.
+      allow update, delete: if false;
+    }
+  }
+}

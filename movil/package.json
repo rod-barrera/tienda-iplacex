@@ -1,0 +1,27 @@
+{
+  "name": "cl.iplacex.tiendaiplacex",
+  "displayName": "Tienda Iplacex",
+  "version": "1.0.0",
+  "description": "Empaquetado Android con Cordova de la tienda del examen de Programacion de Componentes (Iplacex).",
+  "main": "index.js",
+  "private": true,
+  "license": "UNLICENSED",
+  "author": "Rodrigo Barrera",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "devDependencies": {
+    "cordova": "13.0.0"
+  },
+  "dependencies": {
+    "cordova-android": "15.1.0"
+  },
+  "cordova": {
+    "platforms": [
+      "android"
+    ]
+  }
+}
